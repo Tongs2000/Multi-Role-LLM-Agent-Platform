@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Editor</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Image Editor</h1>
+        <input type="file" id="upload" accept="image/*">
+        <canvas id="canvas"></canvas>
+        <div class="controls">
+            <button id="crop">Crop</button>
+            <button id="rotate">Rotate</button>
+            <button id="grayscale">Grayscale</button>
+            <button id="save">Save</button>
+            <div class="slider-container">
+                <label for="brightness">Brightness</label>
+                <input type="range" id="brightness" min="-1" max="1" step="0.1" value="0">
+                <label for="contrast">Contrast</label>
+                <input type="range" id="contrast" min="-1" max="1" step="0.1" value="0">
+            </div>
+            <button id="undo">Undo</button>
+            <button id="redo">Redo</button>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

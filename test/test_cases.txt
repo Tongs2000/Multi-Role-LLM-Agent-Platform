@@ -1,0 +1,29 @@
+1. Simple Calculator Application
+Create a full-stack calculator application. First, research best practices for calculator UI/UX, security, and error handling. Then implement a frontend with modern UI and a backend API. The frontend should support basic arithmetic operations with keyboard and button input, while the backend should handle calculations and validation.
+
+2. Todo List Application
+Develop a full-stack todo list application. First, research task management patterns, data persistence strategies, and user experience best practices. Then implement a frontend with task management features and a backend with data storage. Include features like add, delete, mark-as-complete, and task categorization.
+
+3. Weather Query Application
+Create a full-stack weather application. First, research weather APIs, data visualization techniques, and caching strategies. Then implement a frontend for city search and weather display, and a backend for API integration and data caching. Include error handling, loading states, and temperature unit conversion.
+
+4. Simple Blog System
+Develop a full-stack blog system. First, research content management systems, authentication methods, and SEO best practices. Then implement a frontend for article management and a backend for content storage. Include features for article creation, editing, deletion, and user authentication.
+
+5. File Upload Tool
+Create a full-stack file upload system. First, research secure file handling, storage solutions, and virus scanning methods. Then implement a frontend with drag-and-drop and a backend for file processing. Include file type validation, size limits, and multiple file upload support.
+
+6. Simple Chat Application
+Develop a full-stack chat application. First, research WebSocket implementations, message persistence, and security measures. Then implement a frontend for real-time messaging and a backend for message handling. Include user registration, login, and message history features.
+
+7. Image Processing Tool
+Create a full-stack image processing system. First, research image processing libraries, canvas manipulation, and storage solutions. Then implement a frontend for image editing and a backend for processing. Include features for upload, crop, rotate, and filter application.
+
+8. Simple Game - Snake
+Develop a full-stack snake game. First, research game development patterns, collision detection, and user controls. Then implement a frontend for game display and a backend for score tracking. Include keyboard controls, score tracking, and difficulty levels.
+
+9. Simple Note Application
+Create a full-stack note-taking system. First, research rich text editors, search algorithms, and data persistence methods. Then implement a frontend for note editing and a backend for storage. Include rich text editing, note categorization, and search functionality.
+
+10. Simple Shopping Cart System
+Develop a full-stack shopping cart system. First, research e-commerce patterns, payment systems, and inventory management. Then implement a frontend for product display and a backend for cart management. Include product addition, quantity modification, and price calculation.

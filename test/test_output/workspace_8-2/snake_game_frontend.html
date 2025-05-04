@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        canvas {
+            border: 2px solid #333;
+            background-color: #fff;
+        }
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .score-display {
+            font-size: 20px;
+            margin: 10px 0;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border: 2px solid #333;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Snake Game</h1>
+    <div class="score-display">
+        <span id="current-score">Score: 0</span>
+        <span id="high-score"> | High Score: 0</span>
+    </div>
+    <canvas id="game-canvas" width="400" height="400"></canvas>
+    <div class="controls">
+        <button id="start-btn">Start</button>
+        <button id="pause-btn">Pause</button>
+        <button id="reset-btn">Reset</button>
+        <select id="difficulty-selector">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+        </select>
+    </div>
+    <div id="game-over-modal" class="modal">
+        <h2>Game Over!</h2>
+        <p id="final-score">Your score: 0</p>
+        <button id="restart-btn">Restart</button>
+        <button id="exit-btn">Exit</button>
+    </div>
+
+    <script>
+        // Game state
+        const gameState = {
+            snake: [{ x: 10, y: 10 }],
+            food: { x: 5, y: 5 },
+            direction: 'right',
+            nextDirection: 'right',
+            score: 0,
+            highScore: 0,
+            gameRunning: false,
+            gamePaused: false,
+            difficulty: 'easy',
+            speed: 150
+        };
+
+        // DOM elements
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const currentScoreDisplay = document.getElementById('current-score');
+        const highScoreDisplay = document.getElementById('high-score');
+        const startBtn = document.getElementById('start-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const difficultySelector = document.getElementById('difficulty-selector');
+        const gameOverModal = document.getElementById('game-over-modal');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const restartBtn = document.getElementById('restart-btn');
+        const exitBtn = document.getElementById('exit-btn');
+
+        // Event listeners
+        startBtn.addEventListener('click', startGame);
+        pauseBtn.addEventListener('click', pauseGame);
+        resetBtn.addEventListener('click', resetGame);
+        difficultySelector.addEventListener('change', updateDifficulty);
+        restartBtn.addEventListener('click', restartGame);
+        exitBtn.addEventListener('click', exitGame);
+        document.addEventListener('keydown', handleKeyPress);
+
+        // Initialize game
+        function initGame() {
+            drawGrid();
+            drawSnake();
+            drawFood();
+            fetchHighScore();
+        }
+
+        // Draw grid
+        function drawGrid() {
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#ddd';
+            for (let i = 0; i < canvas.width; i += 20) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+        }
+
+        // Draw snake
+        function drawSnake() {
+            gameState.snake.forEach(segment => {
+                ctx.fillStyle = '#4CAF50';
+                ctx.fillRect(segment.x * 20, segment.y * 20, 20, 20);
+                ctx.strokeStyle = '#45a049';
+                ctx.strokeRect(segment.x * 20, segment.y * 20, 20, 20);
+            });
+        }
+
+        // Draw food
+        function drawFood() {
+            ctx.fillStyle = '#f44336';
+            ctx.fillRect(gameState.food.x * 20, gameState.food.y * 20, 20, 20);
+        }
+
+        // Update game state
+        function updateGame() {
+            if (!gameState.gameRunning || gameState.gamePaused) return;
+
+            // Update direction
+            gameState.direction = gameState.nextDirection;
+
+            // Move snake
+            const head = { ...gameState.snake[0] };
+            switch (gameState.direction) {
+                case 'up': head.y -= 1; break;
+                case 'down': head.y += 1; break;
+                case 'left': head.x -= 1; break;
+                case 'right': head.x += 1; break;
+            }
+
+            // Check collision with walls or self
+            if (head.x < 0 || head.x >= canvas.width / 20 || head.y < 0 || head.y >= canvas.height / 20 ||
+                gameState.snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                gameOver();
+                return;
+            }
+
+            // Check if food is eaten
+            if (head.x === gameState.food.x && head.y === gameState.food.y) {
+                gameState.score += 10;
+                currentScoreDisplay.textContent = `Score: ${gameState.score}`;
+                generateFood();
+            } else {
+                gameState.snake.pop();
+            }
+
+            gameState.snake.unshift(head);
+
+            // Redraw
+            drawGrid();
+            drawSnake();
+            drawFood();
+
+            // Schedule next update
+            setTimeout(updateGame, gameState.speed);
+        }
+
+        // Generate new food
+        function generateFood() {
+            let newFood;
+            do {
+                newFood = {
+                    x: Math.floor(Math.random() * (canvas.width / 20)),
+                    y: Math.floor(Math.random() * (canvas.height / 20))
+                };
+            } while (gameState.snake.some(segment => segment.x === newFood.x && segment.y === newFood.y));
+            gameState.food = newFood;
+        }
+
+        // Handle keyboard input
+        function handleKeyPress(e) {
+            if (!gameState.gameRunning || gameState.gamePaused) return;
+
+            switch (e.key) {
+                case 'ArrowUp': if (gameState.direction !== 'down') gameState.nextDirection = 'up'; break;
+                case 'ArrowDown': if (gameState.direction !== 'up') gameState.nextDirection = 'down'; break;
+                case 'ArrowLeft': if (gameState.direction !== 'right') gameState.nextDirection = 'left'; break;
+                case 'ArrowRight': if (gameState.direction !== 'left') gameState.nextDirection = 'right'; break;
+            }
+        }
+
+        // Start game
+        function startGame() {
+            if (gameState.gameRunning) return;
+            gameState.gameRunning = true;
+            gameState.gamePaused = false;
+            updateGame();
+        }
+
+        // Pause game
+        function pauseGame() {
+            if (!gameState.gameRunning) return;
+            gameState.gamePaused = !gameState.gamePaused;
+            if (!gameState.gamePaused) updateGame();
+        }
+
+        // Reset game
+        function resetGame() {
+            gameState.snake = [{ x: 10, y: 10 }];
+            gameState.direction = 'right';
+            gameState.nextDirection = 'right';
+            gameState.score = 0;
+            gameState.gameRunning = false;
+            gameState.gamePaused = false;
+            currentScoreDisplay.textContent = `Score: 0`;
+            generateFood();
+            drawGrid();
+            drawSnake();
+            drawFood();
+        }
+
+        // Update difficulty
+        function updateDifficulty() {
+            gameState.difficulty = difficultySelector.value;
+            switch (gameState.difficulty) {
+                case 'easy': gameState.speed = 150; break;
+                case 'medium': gameState.speed = 100; break;
+                case 'hard': gameState.speed = 50; break;
+            }
+        }
+
+        // Game over
+        function gameOver() {
+            gameState.gameRunning = false;
+            finalScoreDisplay.textContent = `Your score: ${gameState.score}`;
+            gameOverModal.style.display = 'block';
+            if (gameState.score > gameState.highScore) {
+                gameState.highScore = gameState.score;
+                highScoreDisplay.textContent = ` | High Score: ${gameState.highScore}`;
+                updateHighScore(gameState.highScore);
+            }
+        }
+
+        // Restart game
+        function restartGame() {
+            gameOverModal.style.display = 'none';
+            resetGame();
+            startGame();
+        }
+
+        // Exit game
+        function exitGame() {
+            gameOverModal.style.display = 'none';
+            resetGame();
+        }
+
+        // Fetch high score from backend
+        function fetchHighScore() {
+            fetch('/api/highscore')
+                .then(response => response.json())
+                .then(data => {
+                    gameState.highScore = data.score;
+                    highScoreDisplay.textContent = ` | High Score: ${gameState.highScore}`;
+                })
+                .catch(error => console.error('Error fetching high score:', error));
+        }
+
+        // Update high score on backend
+        function updateHighScore(score) {
+            fetch('/api/highscore', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ score })
+            })
+                .catch(error => console.error('Error updating high score:', error));
+        }
+
+        // Initialize game on load
+        window.onload = initGame;
+    </script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Processor</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Image Processor</h1>
+        
+        <div class="upload-section">
+            <input type="file" id="file-input" accept="image/*">
+            <button id="upload-btn">Upload Image</button>
+        </div>
+        
+        <div class="editor">
+            <div class="image-container">
+                <canvas id="image-canvas"></canvas>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <h3>Crop</h3>
+                    <button id="crop-btn">Crop Selection</button>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Rotate</h3>
+                    <button id="rotate-left">↺ 90°</button>
+                    <button id="rotate-right">↻ 90°</button>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Filters</h3>
+                    <button class="filter-btn" data-filter="grayscale">Grayscale</button>
+                    <button class="filter-btn" data-filter="blur">Blur</button>
+                    <button class="filter-btn" data-filter="sharpen">Sharpen</button>
+                    <button class="filter-btn" data-filter="contour">Contour</button>
+                </div>
+                
+                <button id="save-btn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

@@ -10,6 +10,7 @@ from app.tool import Terminate, ToolCollection
 from app.tool.browser_use_tool import BrowserUseTool
 from app.tool.python_execute import PythonExecute
 from app.tool.str_replace_editor import StrReplaceEditor
+from app.tool.bash import Bash
 
 
 class Manus(ToolCallAgent):
@@ -29,7 +30,7 @@ class Manus(ToolCallAgent):
     # Add general-purpose tools to the tool collection
     available_tools: ToolCollection = Field(
         default_factory=lambda: ToolCollection(
-            PythonExecute(), BrowserUseTool(), StrReplaceEditor(), Terminate()
+            PythonExecute(), BrowserUseTool(), StrReplaceEditor(), Terminate(), Bash()
         )
     )
 
@@ -58,7 +59,30 @@ class Manus(ToolCallAgent):
                 await self.browser_context_helper.format_next_step_prompt()
             )
 
-        result = await super().think()
+        # 检查消息长度并处理
+        try:
+            result = await super().think()
+        except Exception as e:
+            if "maximum context length" in str(e):
+                # 如果超出 token 限制，逐步裁剪消息
+                logger.warning("Token limit exceeded, truncating messages...")
+                # 保留系统消息和最近的用户消息
+                system_messages = [msg for msg in self.memory.messages if msg.role == "system"]
+                user_messages = [msg for msg in self.memory.messages if msg.role == "user"][-1:]
+                self.memory.messages = system_messages + user_messages
+                # 重新尝试
+                result = await super().think()
+            elif "Messages with role 'tool'" in str(e):
+                # 处理工具消息顺序错误
+                logger.warning("Tool message sequence error, resetting message history...")
+                # 保留系统消息和最近的用户消息
+                system_messages = [msg for msg in self.memory.messages if msg.role == "system"]
+                user_messages = [msg for msg in self.memory.messages if msg.role == "user"][-1:]
+                self.memory.messages = system_messages + user_messages
+                # 重新尝试
+                result = await super().think()
+            else:
+                raise e
 
         # Restore original prompt
         self.next_step_prompt = original_prompt

@@ -1,13 +1,23 @@
 FROM python:3.12-slim
 
-WORKDIR /app/OpenManus
+WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends git curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && (command -v uv >/dev/null 2>&1 || pip install --no-cache-dir uv)
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application
 COPY . .
 
-RUN uv pip install --system -r requirements.txt
+# Install the package in development mode
+RUN pip install -e .
 
-CMD ["bash"]
+# Make the start script executable
+RUN chmod +x distributed_agents/start_agents.sh
+
+CMD ["./distributed_agents/start_agents.sh"]
