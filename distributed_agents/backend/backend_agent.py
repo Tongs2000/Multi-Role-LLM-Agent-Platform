@@ -30,9 +30,9 @@ class BackendAgent:
             self.topics["bugs"],
             bootstrap_servers=self.kafka_bootstrap_servers,
             group_id="backend-agent-group",
-            max_poll_interval_ms=300000,  # 增加为 5 分钟
-            max_poll_records=10,  # 减少每次拉取的消息数量
-            auto_offset_reset='latest'  # 只读取最新的消息
+            max_poll_interval_ms=300000,  # Increased to 5 minutes
+            max_poll_records=10,  # Reduced number of messages per fetch
+            auto_offset_reset='latest'  # Only read latest messages
         )
         self.producer = AIOKafkaProducer(
             bootstrap_servers=self.kafka_bootstrap_servers
@@ -46,11 +46,11 @@ class BackendAgent:
             try:
                 data = json.loads(msg.value.decode())
                 if msg.topic == self.topics["requirements"]:
-                    # 处理新的需求
+                    # Process new requirements
                     logger.info(f"Received new requirement: {data}")
                     await self.handle_requirements(data)
                 elif msg.topic == self.topics["frontend_updates"]:
-                    # 处理前端更新
+                    # Process frontend updates
                     logger.info(f"Received frontend update: {data}")
                     await self.handle_frontend_update(data)
             except Exception as e:
@@ -123,7 +123,7 @@ class BackendAgent:
         """Handle updates from frontend."""
         try:
             if update["type"] == "api_requirements":
-                # 处理前端API需求
+                # Process frontend API requirements
                 prompt = f"""
                 The frontend team has requested the following API:
                 {update['content']}
@@ -133,7 +133,7 @@ class BackendAgent:
 
                 result = await self.agent.run(prompt)
 
-                # 发送API规范
+                # Send API specifications
                 await self.producer.send_and_wait(
                     "frontend-api-spec",
                     json.dumps({

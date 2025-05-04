@@ -48,12 +48,12 @@ class ProjectMonitor:
     async def initialize_kafka(self):
         """Initialize Kafka consumer and producer."""
         self.consumer = AIOKafkaConsumer(
-            *self.topics.values(),  # 监听所有主题
+            *self.topics.values(),  # Listen to all topics
             bootstrap_servers=self.kafka_bootstrap_servers,
             group_id="monitor-group",
             max_poll_interval_ms=300000,
             max_poll_records=10,
-            auto_offset_reset='latest'  # 只读取最新的消息
+            auto_offset_reset='latest'  # Only read the latest messages
         )
         self.producer = AIOKafkaProducer(
             bootstrap_servers=self.kafka_bootstrap_servers
@@ -79,7 +79,7 @@ class ProjectMonitor:
         """Clear all Kafka topics."""
         logger.info("Clearing all Kafka topics...")
         try:
-            # 获取所有 topics
+            # Get all topics
             topics = [
                 # Planning Agent topics
                 self.topics["user_queries"],
@@ -102,10 +102,10 @@ class ProjectMonitor:
                 self.topics["updates"]
             ]
 
-            # 使用 Docker 命令删除并重新创建每个 topic
+            # Use Docker commands to delete and recreate each topic
             for topic in topics:
                 try:
-                    # 删除 topic
+                    # Delete topic
                     delete_cmd = f"docker exec kafka kafka-topics --bootstrap-server localhost:9092 --delete --topic {topic}"
                     await asyncio.create_subprocess_shell(
                         delete_cmd,

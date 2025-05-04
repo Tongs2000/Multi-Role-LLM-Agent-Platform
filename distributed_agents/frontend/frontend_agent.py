@@ -32,8 +32,8 @@ class FrontendAgent:
             self.topics["frontend_bugs"],
             bootstrap_servers=self.kafka_bootstrap_servers,
             group_id="frontend-agent-group",
-            max_poll_interval_ms=300000,
-            max_poll_records=10
+            max_poll_interval_ms=300000,  # Increased to 5 minutes
+            max_poll_records=10  # Reduced number of messages per fetch
         )
         self.producer = AIOKafkaProducer(
             bootstrap_servers=self.kafka_bootstrap_servers

@@ -59,27 +59,27 @@ class Manus(ToolCallAgent):
                 await self.browser_context_helper.format_next_step_prompt()
             )
 
-        # 检查消息长度并处理
+        # Handle message length and process
         try:
             result = await super().think()
         except Exception as e:
             if "maximum context length" in str(e):
-                # 如果超出 token 限制，逐步裁剪消息
+                # If token limit is exceeded, gradually truncate messages
                 logger.warning("Token limit exceeded, truncating messages...")
-                # 保留系统消息和最近的用户消息
+                # Preserve system messages and the most recent user message
                 system_messages = [msg for msg in self.memory.messages if msg.role == "system"]
                 user_messages = [msg for msg in self.memory.messages if msg.role == "user"][-1:]
                 self.memory.messages = system_messages + user_messages
-                # 重新尝试
+                # Retry
                 result = await super().think()
             elif "Messages with role 'tool'" in str(e):
-                # 处理工具消息顺序错误
+                # Handle tool message sequence error
                 logger.warning("Tool message sequence error, resetting message history...")
-                # 保留系统消息和最近的用户消息
+                # Preserve system messages and the most recent user message
                 system_messages = [msg for msg in self.memory.messages if msg.role == "system"]
                 user_messages = [msg for msg in self.memory.messages if msg.role == "user"][-1:]
                 self.memory.messages = system_messages + user_messages
-                # 重新尝试
+                # Retry
                 result = await super().think()
             else:
                 raise e

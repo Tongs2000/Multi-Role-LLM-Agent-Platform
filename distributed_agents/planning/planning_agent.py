@@ -80,7 +80,7 @@ class PlanningAgent:
             return
 
         logger.info("Received user query, sending to retrieval agent...")
-        # 发送搜索请求到 retrieval agent
+        # Send search request to retrieval agent
         await self.producer.send_and_wait(
             self.topics["search_requests"],
             json.dumps({
@@ -90,11 +90,11 @@ class PlanningAgent:
         )
         logger.info("Sent search request to retrieval agent")
 
-        # 立即开始生成初始需求
+        # Start generating initial requirements immediately
         logger.info("Generating initial requirements...")
         await self.generate_requirements(message["content"])
 
-        # 发送完成通知
+        # Send completion notification
         await self.producer.send_and_wait(
             "updates",
             json.dumps({
@@ -135,7 +135,7 @@ class PlanningAgent:
 
             result = await self.agent.run(prompt)
 
-            # 发送到前端和后端 Agent
+            # Send to frontend and backend agents
             await self.producer.send_and_wait(
                 self.topics["frontend_requirements"],
                 json.dumps({
@@ -158,7 +158,7 @@ class PlanningAgent:
 
         except Exception as e:
             logger.error(f"Error generating requirements: {e}")
-            # 发送错误更新
+            # Send error update
             await self.producer.send_and_wait(
                 "updates",
                 json.dumps({
@@ -207,9 +207,9 @@ class PlanningAgent:
 
         result = await self.agent.run(prompt)
 
-        # 只在搜索结果有价值时发送更新
+        # Only send updates if search results are valuable
         if "no significant updates needed" not in result.lower():
-            # 发送前后端需求更新
+            # Send frontend and backend requirement updates
             await self.producer.send_and_wait(
                 self.topics["frontend_requirements"],
                 json.dumps({

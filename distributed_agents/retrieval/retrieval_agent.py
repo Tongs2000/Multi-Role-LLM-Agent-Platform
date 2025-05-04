@@ -110,7 +110,7 @@ class RetrievalAgent:
             return
 
         logger.info("Processing user query...")
-        # 直接转发到 search_requests
+        # Forward directly to search_requests
         await self.producer.send_and_wait(
             self.topics["search_requests"],
             json.dumps({
