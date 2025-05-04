@@ -102,12 +102,12 @@ A Collaborative Multi-Role LLM Agent Platform is an advanced multi-agent system 
 3. Start the agents:
    ```bash
    # Start in separate terminals or use screen/tmux
-   python -m distributed_agents.planning_agent
-   python -m distributed_agents.frontend_agent
-   python -m distributed_agents.backend_agent
-   python -m distributed_agents.integration_agent
-   python -m distributed_agents.validation_agent
-   python -m distributed_agents.retrieval_agent
+   python -m distributed_agents.planning.planning_agent
+   python -m distributed_agents.frontend.frontend_agent
+   python -m distributed_agents.backend.backend_agent
+   python -m distributed_agents.integration.integration_agent
+   python -m distributed_agents.validation.validation_agent
+   python -m distributed_agents.retrieval.retrieval_agent
    ```
 
 ### Example Use Cases
